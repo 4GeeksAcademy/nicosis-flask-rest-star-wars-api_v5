@@ -169,24 +169,23 @@ def get_user_favorites():
     }
     return jsonify(response_body), 200
 
-# get single fav/planet
-@app.route('/favorite/planet/<int:planet_id>', methods=['GET'])
-def get_favorite_planet(planet_id):
-    user = User.query.get(current_logged_user_id)
+# get single fav/planet of current user // ARREGLAR
+@app.route('/users/favorite/<int:favorite_id>', methods=['GET'])
+def get_user_favorites_id(favorite_id):
+    user_id = current_logged_user_id
 
-    single_planet = Favorite.query.get(planet_id)
+    single_planet = Favorite.query.filter_by(user_id=user_id, id=favorite_id).first()
     if single_planet is None:
         raise APIException('watafank! ese favorito no existe...', status_code=404)
     return jsonify(single_planet.serialize()), 200
 
 
-# el de oscar
+# post favorites // funciona con el cody vacio
 @app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
-def add_favorite_planet2(planet_id):
-    # Capturamos la informacion del request body y accedemos a planet_ud id
- 
-    user = User.query.get(current_logged_user_id)
+def add_favorite_planet(planet_id):
 
+    # Capturamos la informacion del request body y accedemos a planet_ud id
+    user = User.query.get(current_logged_user_id)
     new_favorite = Favorite(user_id=user, planet_id=planet_id)
     db.session.add(new_favorite)
     db.session.commit()
@@ -197,6 +196,25 @@ def add_favorite_planet2(planet_id):
     }
 
     return jsonify(response_body), 200
+
+# DELETE
+@app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
+def delete_favorite_planet(planet_id):
+
+    user = current_logged_user_id
+    #planet = Planet.query.get(planet_id)
+
+
+    favorite = Favorite.query.filter_by(user=user, planet=planet_id).first()
+
+    if favorite is None:
+        return jsonify({'msg' : 'No favorite found'}), 404
+
+    db.session.delete(favorite)
+    db.session.commit()
+
+    response_body = {'msg' : 'Su planeta favorito ha sido eliminado correctamente'}
+    return jsonify(response_body)
 
 
 # this only runs if `$ python src/app.py` is executed
