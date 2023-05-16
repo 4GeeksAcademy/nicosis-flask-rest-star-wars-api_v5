@@ -180,13 +180,31 @@ def get_user_favorites_id(favorite_id):
     return jsonify(single_planet.serialize()), 200
 
 
-# post favorites // funciona con el cody vacio
+# post favorites => el body en el postman se deja vacio
 @app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
 def add_favorite_planet(planet_id):
 
-    # Capturamos la informacion del request body y accedemos a planet_ud id
-    user = current_logged_user_id
-    new_favorite = Favorite(user_id=user, planet_id=planet_id)
+    user_id = current_logged_user_id
+
+    # Verificamos si el planet_id existe en la base de datos
+    planet = Planet.query.get(planet_id)
+    if not planet:
+        response_body = {
+            "msg": "funky planet no existe"
+        }
+        return jsonify(response_body), 404
+
+
+    # Verificamos si ya existe un favorito con el mismo user_id y planet_id
+    existing_favorite = Favorite.query.filter_by(user_id=user_id, planet_id=planet_id).first()
+    if existing_favorite:
+        response_body = {
+            "msg": "ese funky favorito ya existe loco"
+        }
+        return jsonify(response_body), 400
+
+    # Si no existe, creamos un nuevo favorito
+    new_favorite = Favorite(user_id=user_id, planet_id=planet_id)
     db.session.add(new_favorite)
     db.session.commit()
 
@@ -197,12 +215,11 @@ def add_favorite_planet(planet_id):
 
     return jsonify(response_body), 200
 
-# DELETE
+# delete favorite planet
 @app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
 def delete_favorite_planet(planet_id):
 
     user_id = current_logged_user_id
-    #planet = Planet.query.get(planet_id)
 
     favorite = Favorite.query.filter_by(user_id=user_id, planet_id=planet_id).first()
 
