@@ -233,6 +233,58 @@ def delete_favorite_planet(planet_id):
     return jsonify(response_body), 200
 
 
+# post character => el body en el postman se deja vacio
+@app.route('/favorite/character/<int:character_id>', methods=['POST'])
+def add_favorite_character(character_id):
+
+    user_id = current_logged_user_id
+
+    # Verificamos si el planet_id existe en la base de datos
+    character = Character.query.get(character_id)
+    if not character:
+        response_body = {
+            "msg": "funky character no existe"
+        }
+        return jsonify(response_body), 404
+
+
+    # Verificamos si ya existe un favorito con el mismo user_id y character_id
+    existing_favorite = Favorite.query.filter_by(user_id=user_id, character_id=character_id).first()
+    if existing_favorite:
+        response_body = {
+            "msg": "ese funky favorito ya existe loco"
+        }
+        return jsonify(response_body), 400
+
+    # Si no existe, creamos un nuevo favorito
+    new_favorite = Favorite(user_id=user_id, character_id=character_id)
+    db.session.add(new_favorite)
+    db.session.commit()
+
+    response_body = {
+        "msg": "funky favorito agregado", 
+        "favorite": new_favorite.serialize()
+    }
+
+    return jsonify(response_body), 200
+
+# delete favorite character
+@app.route('/favorite/character/<int:character_id>', methods=['DELETE'])
+def delete_favorite_character(character_id):
+
+    user_id = current_logged_user_id
+
+    favorite = Favorite.query.filter_by(user_id=user_id, character_id=character_id).first()
+
+    if favorite is None:
+        return jsonify({'msg' : 'funky favorito no encontrado'}), 404
+
+    db.session.delete(favorite)
+    db.session.commit()
+
+    response_body = {'msg' : 'funky favorito con ese character eliminado'}
+    return jsonify(response_body), 200
+
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
