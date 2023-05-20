@@ -43,7 +43,7 @@ def sitemap():
     return generate_sitemap(app)
 
 
-# get user
+# [GET] /users Listar todos los usuarios del blog
 @app.route('/user', methods=['GET'])
 def get_users():
     users = User.query.all()
@@ -101,7 +101,7 @@ def get_relation_planet_galaxy():
     return jsonify(response)
 
 
-# get all planets
+# [GET] /planets Listar los registros de planets en la base de datos
 @app.route('/planet', methods=['GET'])
 def get_planets():
 
@@ -109,7 +109,7 @@ def get_planets():
     all_planets = list(map(lambda x: x.serialize(), planets))
     return jsonify(all_planets), 200
 
-# get single planet
+# [GET] /planets/<int:planet_id> Listar la información de un solo planet
 @app.route('/planet/<int:planets_id>', methods=['GET'])
 def get_single_planet(planets_id):
 
@@ -129,7 +129,7 @@ def add_planet():
     return jsonify('planeta added:',new_planet.serialize()), 200
 
 
-# get all people
+# [GET] /people Listar todos los registros de people en la base de datos
 @app.route('/character', methods=['GET'])
 def get_people():
 
@@ -137,7 +137,7 @@ def get_people():
     all_character = list(map(lambda x: x.serialize(), character))
     return jsonify(all_character), 200
 
-# get single character
+# [GET] /people/<int:people_id> Listar la información de una sola people
 @app.route('/character/<int:character_id>', methods=['GET'])
 def get_single_character(character_id):
 
@@ -157,7 +157,7 @@ def add_people():
     return jsonify('character added:',new_character.serialize()), 200
 
 
-# get favorites user current_logged_id
+# [GET] /users/favorites Listar todos los favoritos que pertenecen al usuario actual.
 @app.route('/users/favorites', methods=['GET'])
 def get_user_favorites():
     user = User.query.get(current_logged_user_id)
@@ -180,7 +180,7 @@ def get_user_favorites_id(favorite_id):
     return jsonify(single_planet.serialize()), 200
 
 
-# post favorites => el body en el postman se deja vacio
+# [POST] /favorite/planet/<int:planet_id> Añade un nuevo planet favorito al usuario actual con el planet id = planet_id.
 @app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
 def add_favorite_planet(planet_id):
 
@@ -215,7 +215,7 @@ def add_favorite_planet(planet_id):
 
     return jsonify(response_body), 200
 
-# delete favorite planet
+# [DELETE] /favorite/planet/<int:planet_id> Elimina un planet favorito con el id = planet_id`.
 @app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
 def delete_favorite_planet(planet_id):
 
@@ -233,7 +233,7 @@ def delete_favorite_planet(planet_id):
     return jsonify(response_body), 200
 
 
-# post character => el body en el postman se deja vacio
+# [POST] /favorite/people/<int:people_id> Añade una nueva people favorita al usuario actual con el people.id = people_id.
 @app.route('/favorite/character/<int:character_id>', methods=['POST'])
 def add_favorite_character(character_id):
 
@@ -268,7 +268,7 @@ def add_favorite_character(character_id):
 
     return jsonify(response_body), 200
 
-# delete favorite character
+# [DELETE] /favorite/people/<int:people_id> Elimina una people favorita con el id = people_id.
 @app.route('/favorite/character/<int:character_id>', methods=['DELETE'])
 def delete_favorite_character(character_id):
 
